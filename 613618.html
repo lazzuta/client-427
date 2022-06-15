@@ -1,0 +1,311 @@
+
+<html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Graph Editor</title>
+      <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+      <script src="https://static.server.retentioneering.com/files/d3.v4.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+      <script src="https://static.server.retentioneering.com/viztools/draw-graph.min.js" type="text/javascript"></script>
+      <style type="text/css">
+          .download {
+            display: flex;
+            align-items: center;
+          }
+    
+          .download__btn {
+            margin-right: 16px;
+          }
+    
+          .download__link {
+            color: inherit !important;
+          }
+    
+    
+          .watermark {
+            width: 100%;
+          }
+          .watermark h3 {
+            width: 100%;
+            text-align: center;
+          }
+    
+          .svg-watermark {
+            width: 100%;
+            font-size: 80px;
+            fill: #c2c2c2;
+            opacity: 0.3;
+            font-family: Arial;
+          }
+    
+          html {
+            font-size: 10px;
+          }
+    
+          circle {
+            fill: #ccc;
+            stroke: #333;
+            stroke-width: 1.5px;
+          }
+    
+          .circle.source_node {
+            fill: #f3f310;
+          }
+    
+          .circle.nice_node {
+            fill: green;
+          }
+    
+          .circle.bad_node {
+            fill: red;
+          }
+    
+          .link {
+            fill: none;
+            stroke: #666;
+            stroke-opacity: 0.7;
+          }
+    
+          #nice_target {
+            fill: green;
+          }
+    
+          .link.nice_target {
+            stroke: green;
+          }
+    
+          #source {
+            fill: yellow;
+          }
+    
+          .link.source {
+            stroke: #f3f310;
+          }
+    
+          .link.positive {
+            stroke: green;
+          }
+    
+          .link.negative {
+            stroke: red;
+          }
+    
+          #source {
+            fill: orange;
+          }
+    
+          .link.source1 {
+            stroke: orange;
+          }
+    
+          #bad_target {
+            fill: red;
+          }
+    
+          .link.bad_target {
+            stroke: red;
+          }
+          text {
+            font: 12px sans-serif;
+            pointer-events: none;
+          }
+    
+          main li {
+            display: inline;
+          }
+          .graphlist {
+            list-style-type: none;
+    
+          }
+          .graphloader {
+            margin-top: 5%;
+            margin-bottom: 5%;
+          }
+          .graphloader input {
+            margin: auto;
+          }
+    
+          h1 {
+            text-align: center;
+          }
+    
+          .bottom-checkbox {
+            margin-right: 5%;
+            display: inline;
+          }
+    
+          .checkbox-class {
+            margin-right: 3px;
+          }
+    
+          .node-edit {
+            position: relative;
+            font-size: 12px;
+            border: none;
+            background-color: rgba(1,1,1,0);
+          }
+    
+          .node-edit:focus {
+            background-color: #ddd;
+          }
+    
+          #option {
+            margin-left: 5px;
+          }
+    
+          #freakingGraph {
+            border: solid 2px black;
+            /*position: relative;*/
+          }
+    
+          .container {
+            margin: 0!important;
+            padding-right: 0!important;
+            max-width: 1200px!important;
+          }
+          .col-8 {
+            padding: 0px 4px 0px 2px!important;
+          }
+          .col-4 {
+            padding-right: 0px!important;
+          }
+          @media (max-width: 576px) {
+            form label {
+              font-size: 10px;
+            }
+          }
+    
+    
+          @media (max-width: 768px) {
+            form label {
+              font-size: 0.8rem;
+            }
+          }
+    
+    
+          @media (max-width: 992px) {
+            form label {
+              font-size: 1rem;
+            }
+          }
+    
+          @media (max-width: 1200px) {
+            form label {
+              font-size: 1rem;
+            }
+          }
+    
+          @media (min-width: 1201px) {
+            form label {
+              font-size: 1.4rem;
+            }
+          }
+    
+      </style>
+    </head>
+    <body>
+    
+    
+    
+      <main>
+    
+        <div class="container">
+    
+            <div class="row">
+              <div class="watermark" style="z-index: 1010; background-color: #FFF; width: 100%">
+                <h3>Retentioneering</h3>
+              </div>
+              <div class="col-8">
+    
+                <div id="freakingGraph" style="z-index: 1000">
+                  <!-- graph will be appended here -->
+                </div>
+              </div>
+              <div class="col-4" style="z-index: 1010; background-color: #FFF">
+                <form>
+                  <div id="check-boxes">
+    
+                  </div>
+                  <br>
+                  <input name="submit" value="Update nodes" style="width: 80%;" type="button" onclick="changeNodes()">
+    
+                </form>
+    
+                <br>
+                <br>
+                <div style="z-index: 1010; background-color: #FFF">
+                  <h6>Nodes Threshold</h6>
+                  <input id="threshold-node-range" name="threshold-node" type="range" min="0" max="1" step="0.01" value="0.05"
+                  oninput="updateNodeThresholdText(this.value)" onchange="updateNodeThresholdText(this.value)">
+                  <label id="threshold-node-text">0.05</label>
+                </div>
+                <br>
+                <div>
+                  <h6>Links Threshold</h6>
+                  <input id="threshold-link-range" name="threshold" type="range" min="0" max="1" step="0.01" value=0.0024704818077195467
+                  oninput="updateLinkThresholdText(this.value*0.364301407599019)" onchange="updateLinkThresholdText(this.value*0.364301407599019)">
+                  <label id="threshold-link-text">0.0024704818077195467</label>
+                </div>
+                <div>
+                  <input type="button" value="Set thresholds" onclick="setThresholds()">
+                </div>
+              </div>
+    
+    
+    
+    
+              <div class="col-12" style="z-index: 1010; background-color: #FFF">
+    
+                <div class="weight-checkbox bottom-checkbox">
+                  <input type="checkbox" class="checkbox checkbox-class" checked value="weighted" id="show-weights"><label> Show weights </label>
+                </div>
+    
+                <div class="percent-checkbox bottom-checkbox">
+                  <input type="checkbox" class="checkbox checkbox-class" checked id="show-percents"><label> Percents </label>
+                </div>
+    
+                <div class="bottom-checkbox">
+                  <input type="checkbox" class="checkbox checkbox-class" checked id="show-names" onchange="changeNamesVisibility(this.checked)"><label> Show nodes names</label>
+                </div>
+    
+                <div class="bottom-checkbox">
+                  <input type="checkbox" class="checkbox checkbox-class" id="block-targets" onchange="setLinkThreshold ()"><label> Show all edges for targets </label>
+                </div>
+                <div class="download">
+                  <div id="option" class="download__btn">
+                    <input name="downloadButton"
+                    type="button"
+                    value="download"
+                    onclick="downloadLayout()" />
+                  </div>
+                  <div class="download__btn">
+                    <button type="button" onclick="downloadSVG('svg', 'graph')">
+                      download SVG
+                    </button>
+                  </div>
+                  <div class="download__btn">
+                    <button type="button" onclick="downloadPNG('svg', 'graph', 4)">
+                      download PNG
+                    </button>
+                  </div>
+                </div>
+              </div>
+          </div>
+    
+    
+    
+    
+      </main>
+      <script type="text/javascript">
+        updateLinkThresholdText(0.0024704818077195467*0.364301407599019);
+        initialize([{"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}], {"Order Completed": "nice_target", "Lost": "bad_target"}, [{"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 0.000828095491029273, "weight_text": 0.00030167635300836496, "type": "suit"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 5.348500944287064e-05, "weight_text": 1.9484664225484597e-05, "type": "suit"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.00017152089235127478, "weight_text": 6.248530251620922e-05, "type": "suit"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.00032459867799811143, "weight_text": 0.00011825175529949273, "type": "suit"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.0012098677998111428, "weight_text": 0.00044075654247992745, "type": "suit"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.00679259619924457, "weight_text": 0.0024745523566365437, "type": "bad_target"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 3.319759206798867e-05, "weight_text": 1.2093929519266302e-05, "type": "suit"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 1.844310670443815e-06, "weight_text": 6.718849732925723e-07, "type": "nice_target"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.0006159997639282343, "weight_text": 0.00022440958107971916, "type": "suit"}, {"source": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 2.7664660056657224e-05, "weight_text": 1.0078274599388584e-05, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 2.7664660056657224e-05, "weight_text": 1.0078274599388584e-05, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.004205028328611898, "weight_text": 0.0015318977391070648, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.01153985186496695, "weight_text": 0.004203984277891625, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.001077077431539188, "weight_text": 0.0003923808244028622, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.005992165368271954, "weight_text": 0.0021829542782275673, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.013256905099150142, "weight_text": 0.00482950918802701, "type": "bad_target"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.00031168850330500473, "weight_text": 0.00011354856048644472, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.0008852691218130312, "weight_text": 0.0003225047871804347, "type": "nice_target"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.008244068696883853, "weight_text": 0.0030033258306177983, "type": "suit"}, {"source": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.004444788715769594, "weight_text": 0.0016192427856350992, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 0.00010881432955618508, "weight_text": 3.9641213424261766e-05, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.005302393177525968, "weight_text": 0.0019316692982161454, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.02818475566572238, "weight_text": 0.01026774616185709, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.002281412299338999, "weight_text": 0.0008311217119629119, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.012093145066100094, "weight_text": 0.004405549769879396, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.05787078021718603, "weight_text": 0.021082406691974333, "type": "bad_target"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.0018682867091595848, "weight_text": 0.0006806194779453758, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.004114657105760151, "weight_text": 0.001498975375415729, "type": "nice_target"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.011672642233238906, "weight_text": 0.00425235999596869, "type": "suit"}, {"source": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.021438267233238904, "weight_text": 0.00780999092955286, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 0.00023791607648725212, "weight_text": 8.667316155474182e-05, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.0016395921860245515, "weight_text": 0.0005973057412570967, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.003603783050047215, "weight_text": 0.0013128632378136863, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.017546771718602458, "weight_text": 0.006392313635905533, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.014979491265344666, "weight_text": 0.005457049753082272, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.13498325365911237, "weight_text": 0.049174589310310074, "type": "bad_target"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.00029877832861189803, "weight_text": 0.00010884536567339672, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.00016229933899905571, "weight_text": 5.912587764974636e-05, "type": "nice_target"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.004262201959395657, "weight_text": 0.0015527261732791347, "type": "suit"}, {"source": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.0011047420915958452, "weight_text": 0.0004024590990022508, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 0.0014145862842304062, "weight_text": 0.000515335774515403, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.009725050165250236, "weight_text": 0.003542849464171734, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.02275879367327668, "weight_text": 0.008291060570430343, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.012447252714825309, "weight_text": 0.004534551684751571, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.2026989642351275, "weight_text": 0.07384351798972016, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 1.0, "weight_text": 0.364301407599019, "type": "bad_target"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.0018406220491029273, "weight_text": 0.0006705412033459872, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.0013684785174693107, "weight_text": 0.0004985386501830887, "type": "nice_target"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.02654516347969783, "weight_text": 0.009670440420599993, "type": "suit"}, {"source": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.007792212582625119, "weight_text": 0.002838714012161118, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 0.00015492209631728048, "weight_text": 5.6438337756576075e-05, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.0012836402266288953, "weight_text": 0.00046763194141163033, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.006480907695939566, "weight_text": 0.002361003796150099, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.00677784171388102, "weight_text": 0.0024691772768502033, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.0545399551463645, "weight_text": 0.01986898243020795, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.06049523430122758, "weight_text": 0.022038499008969665, "type": "bad_target"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.005916548630783759, "weight_text": 0.002155406994322572, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.0007321913361661946, "weight_text": 0.0002667383343971512, "type": "nice_target"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.00989103812559018, "weight_text": 0.0036033191117680655, "type": "suit"}, {"source": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.002351496104815864, "weight_text": 0.0008566533409480297, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 3.873052407932012e-05, "weight_text": 1.4109584439144019e-05, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.0005772692398489141, "weight_text": 0.00021029999664057514, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.0024750649197356, "weight_text": 0.0009016696341586321, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.0005293171624173749, "weight_text": 0.00019283098733496824, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.0028033522190745986, "weight_text": 0.0010212651594047099, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.07765654508970728, "weight_text": 0.02829038868545705, "type": "bad_target"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.012961815391879131, "weight_text": 0.004722007592300198, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.00011803588290840416, "weight_text": 4.3000638290724625e-05, "type": "nice_target"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.0049519741501416435, "weight_text": 0.0018040111532905566, "type": "suit"}, {"source": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.0008188739376770539, "weight_text": 0.0002983169281419021, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 5.532932011331445e-06, "weight_text": 2.015654919877717e-06, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 7.008380547686498e-05, "weight_text": 2.5531628985117747e-05, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.0007303470254957507, "weight_text": 0.0002660664494238586, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.00011434726156751653, "weight_text": 4.165686834413948e-05, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.0005717363078375827, "weight_text": 0.0002082843417206974, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.010226702667610955, "weight_text": 0.0037256021769073136, "type": "bad_target"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.00012910174693106706, "weight_text": 4.703194813048006e-05, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.0005496045797922568, "weight_text": 0.00020022172204118654, "type": "nice_target"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.0005551375118035884, "weight_text": 0.00020223737696106427, "type": "suit"}, {"source": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.003600094428706327, "weight_text": 0.001311519467867101, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 0.0003467304060434372, "weight_text": 0.0001263143749790036, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.010438798394711993, "weight_text": 0.003802868948835959, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.01915316631255902, "weight_text": 0.006977525447643363, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.0031095077903682726, "weight_text": 0.001132798064971277, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.02584248111425874, "weight_text": 0.009414452245775523, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.09400451487252125, "weight_text": 0.03424597708872241, "type": "bad_target"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.0017631610009442873, "weight_text": 0.0006423220344676992, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.0012135564211520303, "weight_text": 0.00044210031242651257, "type": "nice_target"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.03250781987724268, "weight_text": 0.01184264453925488, "type": "suit"}, {"source": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.006242991619452314, "weight_text": 0.0022743306345953574, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 6, "name": "404", "x": 75.0, "y": 283.0, "type": "suit_node", "degree": 4.108668436712392}, "weight": 1.8443106704438152e-05, "weight_text": 6.7188497329257235e-06, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 2, "name": "Add to Cart", "x": 217.5641174907897, "y": 79.77579742947918, "type": "suit_node", "degree": 4.570852456224413}, "weight": 0.0004371016288951842, "weight_text": 0.00015923673867033965, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 1, "name": "Cart", "x": 245.49419301178634, "y": 129.30798936739862, "type": "suit_node", "degree": 5.738275565361841}, "weight": 0.01005518177525968, "weight_text": 0.0036631168743911043, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 5, "name": "Catalog", "x": 275.08594607359623, "y": 174.2175984177279, "type": "suit_node", "degree": 5.911287155390781}, "weight": 0.0004924309490084986, "weight_text": 0.0001793932878691168, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 4, "name": "Item View", "x": 384.1241014600712, "y": 138.22444731669395, "type": "suit_node", "degree": 18.466933656330667}, "weight": 0.002812573772426818, "weight_text": 0.0010246245842711727, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 3, "name": "Lost", "x": 437.91379786963415, "y": 146.78025285067088, "type": "bad_node", "degree": 34.0}, "weight": 0.03923955382436261, "weight_text": 0.01429502469177277, "type": "bad_target"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 8, "name": "Main", "x": 337.24340994415024, "y": 210.8025166148036, "type": "suit_node", "degree": 5.184409701612996}, "weight": 0.0009092451605288009, "weight_text": 0.0003312392918332382, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 9, "name": "Order Completed", "x": 100.55517123774223, "y": 50.0, "type": "nice_node", "degree": 4.174441437880419}, "weight": 0.005420429060434372, "weight_text": 0.00197466993650687, "type": "nice_target"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 7, "name": "Search", "x": 190.5423482477333, "y": 155.87796833356097, "type": "suit_node", "degree": 6.334617442618617}, "weight": 0.002375472143531634, "weight_text": 0.0008653878456008332, "type": "suit"}, {"source": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "target": {"index": 0, "name": "\u0421heckout Began", "x": 458.0, "y": 184.34315008000758, "type": "suit_node", "degree": 4.80359355716913}, "weight": 0.011390462700661002, "weight_text": 0.004149561595054927, "type": "suit"}], 0);
+    
+        if (!1) {
+          $('.percent-checkbox').hide();
+        }
+      </script>
+    </body>
+    </html>
+    
